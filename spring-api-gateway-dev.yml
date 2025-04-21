@@ -24,7 +24,7 @@ spring:
         - id: inventory-service-all
           uri: lb://spring-inventory-service
           predicates:
-            - Path=/api/inventory/products
+            - Path=/api/inventory/**
           filters:
             - RewritePath=/api/inventory/(?<segment>.*), /api/inventory/${segment}
             - name: CircuitBreaker
@@ -32,14 +32,14 @@ spring:
                 name: inventoryCircuitBreaker
                 fallbackUri: forward:/fallback/inventory
 
-#        # Specific Product Routes
-#        - id: inventory-get-products
-#          uri: lb://spring-inventory-service
-#          predicates:
-#            - Path=/api/inventory/products
-#            - Method=GET
-#          filters:
-#            - RewritePath=/api/products, /api/inventory/products
+        # Specific Product Routes
+        - id: inventory-get-products
+          uri: lb://spring-inventory-service
+          predicates:
+            - Path=/api/products
+            - Method=GET
+          filters:
+            - RewritePath=/api/products, /api/inventory/products
 ---
 
 # Resilience4j circuit breaker configuration
