@@ -1,6 +1,7 @@
 server:
   port: 9000
 
+---
 eureka:
   client:
     service-url:
@@ -9,3 +10,55 @@ eureka:
     fetch-registry: true
   instance:
     prefer-ip-address: true
+---
+
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        # Inventory Service Routes
+        - id: inventory-service-all
+          uri: lb://spring-inventory-service
+          predicates:
+            - Path=/api/inventory/**
+          filters:
+            - RewritePath=/api/inventory/(?<segment>.*), /api/inventory/${segment}
+            - name: CircuitBreaker
+              args:
+                name: inventoryCircuitBreaker
+                fallbackUri: forward:/fallback/inventory
+
+#        # Specific Product Routes
+#        - id: inventory-get-products
+#          uri: lb://spring-inventory-service
+#          predicates:
+#            - Path=/api/inventory/products
+#            - Method=GET
+#          filters:
+#            - RewritePath=/api/products, /api/inventory/products
+---
+
+# Resilience4j circuit breaker configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      inventoryCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowType: COUNT_BASED
+        minimumNumberOfCalls: 5
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+      billingCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowType: COUNT_BASED
+        minimumNumberOfCalls: 5
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
