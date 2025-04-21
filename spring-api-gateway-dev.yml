@@ -15,22 +15,40 @@ eureka:
 spring:
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
+    httpclient:
+      connect-timeout: 1000
+      response-timeout: 300s
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allow-credentials: false
+            allowedOrigins: "*"
+            allowedHeaders: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+#      discovery:
+#        locator:
+#          enabled: true
+#          lower-case-service-id: true
       routes:
         # Inventory Service Routes
         - id: inventory-service-all
           uri: lb://spring-inventory-service
           predicates:
             - Path=/inventory/**
-          filters:
-            - RewritePath=/inventory/(?<segment>.*), /inventory/${segment}
-            - name: CircuitBreaker
-              args:
-                name: inventoryCircuitBreaker
-                fallbackUri: forward:/fallback/inventory
+#          filters:
+#            - RewritePath=/inventory/(?<segment>.*), /inventory/${segment}
+#            - name: CircuitBreaker
+#              args:
+#                name: inventoryCircuitBreaker
+#                fallbackUri: forward:/fallback/inventory
 
 #        # Specific Product Routes
 #        - id: inventory-get-products
