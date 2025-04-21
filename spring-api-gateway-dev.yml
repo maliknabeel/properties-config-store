@@ -40,9 +40,9 @@ spring:
       routes:
         # Inventory Service Routes
         - id: inventory-service-all
-          uri: http://localhost:9020
+          uri: lb://spring-inventory-service
           predicates:
-            - Path=/inventory/**
+            - Path=/inventory/products/**
 #          filters:
 #            - RewritePath=/inventory/(?<segment>.*), /inventory/${segment}
 #            - name: CircuitBreaker
