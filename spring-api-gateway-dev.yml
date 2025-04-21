@@ -40,7 +40,7 @@ spring:
       routes:
         # Inventory Service Routes
         - id: inventory-service-all
-          uri: lb://spring-inventory-service
+          uri: http://localhost:9020
           predicates:
             - Path=/inventory/**
 #          filters:
